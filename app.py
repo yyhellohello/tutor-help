@@ -19,8 +19,8 @@ import time
 app = Flask(__name__)
 
 # LINE Bot設定
-LINE_CHANNEL_SECRET = 'd2be7216d3a0cf571c96f45b23dfc01d'
-LINE_CHANNEL_ACCESS_TOKEN = '9J4cAf8zpSxPDKSoZbgTrGXTEeCEVVkvuUwBrqZ9Vo5hmcFgM5EaE0ouGfXsZy5DEsyEDi1FpfqzwYMZfDeyEj//CbgVIj42iMCa6N5VtMVSt2ev3cSNWnSRmvIJExo5S6f61tYPmZdJ5CEs3loprwdB04t89/1O/w1cDnyilFU='
+LINE_CHANNEL_SECRET = os.environ.get('LINE_CHANNEL_SECRET', 'd2be7216d3a0cf571c96f45b23dfc01d')
+LINE_CHANNEL_ACCESS_TOKEN = os.environ.get('LINE_CHANNEL_ACCESS_TOKEN', '9J4cAf8zpSxPDKSoZbgTrGXTEeCEVVkvuUwBrqZ9Vo5hmcFgM5EaE0ouGfXsZy5DEsyEDi1FpfqzwYMZfDeyEj//CbgVIj42iMCa6N5VtMVSt2ev3cSNWnSRmvIJExo5S6f61tYPmZdJ5CEs3loprwdB04t89/1O/w1cDnyilFU=')
 
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(LINE_CHANNEL_SECRET)
@@ -28,8 +28,8 @@ handler = WebhookHandler(LINE_CHANNEL_SECRET)
 # Google API設定
 SCOPES = ['https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/drive']
 SERVICE_ACCOUNT_FILE = 'google_credentials.json'
-CALENDAR_ID = 'forget775981@gmail.com'
-DRIVE_ROOT_FOLDER_ID = '1--LlRPbaE0vbo62N__kI_5VqnfRbWCpH'
+CALENDAR_ID = os.environ.get('CALENDAR_ID', 'forget775981@gmail.com')
+DRIVE_ROOT_FOLDER_ID = os.environ.get('DRIVE_ROOT_FOLDER_ID', '1--LlRPbaE0vbo62N__kI_5VqnfRbWCpH')
 
 # 資料庫初始化
 def init_database():
@@ -70,8 +70,16 @@ def init_database():
 
 # Google API服務初始化
 def get_google_service(service_name):
-    credentials = service_account.Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+    # 從環境變數讀取Google憑證
+    google_credentials = os.environ.get('GOOGLE_CREDENTIALS')
+    if google_credentials:
+        # 從環境變數讀取憑證
+        credentials = service_account.Credentials.from_service_account_info(
+            json.loads(google_credentials), scopes=SCOPES)
+    else:
+        # 從檔案讀取憑證（本地開發用）
+        credentials = service_account.Credentials.from_service_account_file(
+            SERVICE_ACCOUNT_FILE, scopes=SCOPES)
     return build(service_name, 'v3', credentials=credentials)
 
 # 建立Google Meet會議
