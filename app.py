@@ -7,7 +7,7 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage,
-    TemplateSendMessage, ButtonsTemplate, PostbackAction,
+    TemplateSendMessage, ButtonsTemplate, PostbackAction, PostbackEvent,
     FlexSendMessage, BoxComponent, TextComponent, ButtonComponent
 )
 from google.oauth2 import service_account
